@@ -14,7 +14,8 @@ public class Jukebox extends Applet{
 //***************************************//
 
     public void init() {
-        // Code goes here
+        // Sizes the applet on init to the preferred/intended dimensions
+        resize(400,300);
     }
 
     public void paint(Graphics g) {
