@@ -4,6 +4,7 @@
  * Date  : 28/03/13
  * Time  : 9:28 AM
  */
+import javax.swing.*;
 import java.applet.Applet;
 import java.awt.*;
 
@@ -15,7 +16,28 @@ public class Jukebox extends Applet{
 
     public void init() {
         // Sizes the applet on init to the preferred/intended dimensions
-        resize(600,300);
+        resize(600, 260);
+        setLayout(new BorderLayout(0,3));
+
+        // Song list
+        List list = new List(5);
+        list.add("One");
+        list.add("One");
+        list.add("One");
+        list.add("One");
+        list.add("One");
+        list.add("One");
+        list.add("One");
+        add(list,BorderLayout.SOUTH);
+
+        //Buttons
+        add(Box.createRigidArea(new Dimension(50,135)),BorderLayout.NORTH); // Invisible Box to shift things around
+
+        Font btn = new Font("Sans-serif", Font.BOLD, 30);
+        Button stop = new Button("■");
+        stop.setFont(btn);
+        add(stop,BorderLayout.EAST);
+
     }
 
     public void paint(Graphics g) {
@@ -44,7 +66,7 @@ public class Jukebox extends Applet{
         g2.setFont(fntT);
         g2.drawString(title, 170, 50);
         g2.setFont(fntA);
-        g2.drawString(artist,180,80);
+        g2.drawString(artist, 180, 80);
         g2.setFont(fntL);
         g2.drawString(length,180,100);
     }
