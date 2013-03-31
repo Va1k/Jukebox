@@ -1,22 +1,27 @@
 /**
  * Created with IntelliJ IDEA.
- * Author: Andreas
  * Date  : 28/03/13
  * Time  : 9:28 AM
  */
 import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.*;
+import java.io.IOException;
 import java.net.*;
-import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.sound.sampled.*;
 
 public class Jukebox extends Applet{
 //***************************************//
     Image img;
     MediaTracker MediaTrack;
+    AudioInputStream stream;
+    Clip music;
+    List list;
+    URL url;
+    URL file;
 //***************************************//
 
     public void init() {
@@ -24,11 +29,11 @@ public class Jukebox extends Applet{
         resize(600, 260);
         setLayout(new BorderLayout(0,3));
 
-        // Song list
-        final List list = new List(5);
+        // Creates the list component that will house our songs.
+        list = new List(5);
 
         /* *
-        * Big complicated block of code does a bunch of stuff.
+        * Complicated block of code does a bunch of stuff.
         *
         * Firstly it gets a URL to the /data folder that's correct because it's worked out relative to the java file.
         * This means it'll work when uploaded to a web server/anywhere.
@@ -38,7 +43,7 @@ public class Jukebox extends Applet{
         * Simply meaning that if it fails (kind of likely, what if no songs are available, etc.) it'll know what to do still
         * */
 
-        final URL url = this.getClass().getResource("/data");
+        url = this.getClass().getResource("/data");
 
         File dir = null;
         try {
@@ -57,54 +62,62 @@ public class Jukebox extends Applet{
         // Add the list to the window.
         add(list, BorderLayout.SOUTH);
 
-        // Listen up!
+        /*
+         * Listen up!
+         *  Provides a listener that responds to when items are *double-clicked* on
+         *  in the list component.
+         */
         list.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("lol");
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                file = this.getClass().getResource("/data/" + list.getSelectedItem());  // Gets the File URL to the selected song.
 
-                URL file = this.getClass().getResource("/data/" + list.getSelectedItem());
+                // What if something is already playing? :S
+                if(stream != null) {  // If the AudioStream *isn't* empty...
+                    try {
+                        stream.close();  // try to close the stream
+                    } catch (IOException e) {
+                        e.printStackTrace();   // but if it can't, print a stack trace.
+                    }
+                }
 
-                AudioInputStream stream = null;
+                if(music != null) {  // If the clip *isn't empty...
+                    music.stop();    // Stop the music.
+                    music.flush();   // Flush the cache.
+                }
+
+                stream = null; // Set the stream to null.
                 try {
-                    stream = AudioSystem.getAudioInputStream(file);
-                } catch (UnsupportedAudioFileException e1) {
-                    e1.printStackTrace();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                    stream = AudioSystem.getAudioInputStream(file);  // Try to put the file into the AudioStream
+                } catch (UnsupportedAudioFileException e) {          // If the file is unsuported..
+                    e.printStackTrace();                                // Print a Stack Trace
+                } catch (IOException e) {                            // If there's an I/O exception..
+                    e.printStackTrace();                                // Print a Stack Trace
                 }
-                Clip music = null;
-
-
-
+                music = null; // Set the clip to null.
                 try {
-                    music = AudioSystem.getClip();
-                } catch (LineUnavailableException e1) {
-                    e1.printStackTrace();
+                    music = AudioSystem.getClip();      // Creates a clip that can be used for playing back an audio file or an audio stream.
+                } catch (LineUnavailableException e) {  // But if there's no line to put it on...
+                    e.printStackTrace();                    // Print a Stack Trace
                 }
                 try {
-                    music.open(stream);
-                } catch (LineUnavailableException e1) {
-                    e1.printStackTrace();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                    music.open(stream);                 // Try to use the clip to open the previously created stream.
+                } catch (LineUnavailableException e) {  // But if there's no line to put it on...
+                    e.printStackTrace();                    // Print a Stack Trace.
+                } catch (IOException e) {               // Or if there's an I/O Error.
+                    e.printStackTrace();                    // Print a Stack Trace.
                 }
-                if(music.isActive()) {
-                    music.flush();
-                }
-
-                music.start();
-
+                music.start();  // Finally, play the music.
             }
         });
-
-        //Buttons
-        add(Box.createRigidArea(new Dimension(50,135)),BorderLayout.NORTH); // Invisible Box to shift things around
+        // Finally end the listener.
+        // Buttons
+        add(Box.createRigidArea(new Dimension(50, 135)), BorderLayout.NORTH); // Invisible Box to shift things around
 
         Font btn = new Font("Sans-serif", Font.BOLD, 30);
         Button stop = new Button("■");
         stop.setFont(btn);
         add(stop,BorderLayout.EAST);
-
     }
 
     public void paint(Graphics g) {
@@ -114,9 +127,9 @@ public class Jukebox extends Applet{
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
         //Define some stuff!
-        String title = "Strangeness & Charm";
-        String artist = "Florence & The Machine";
-        String length = "5:49";
+        String title = "Song name";
+        String artist = "Song artist";
+        String length = "0:00";
         Font fntT = new Font("Trebuchet MS", Font.PLAIN, 22);
         Font fntA = new Font("Trebuchet MS", Font.PLAIN, 18);
         Font fntL = new Font("Trebuchet MS", Font.PLAIN, 16);
@@ -125,7 +138,7 @@ public class Jukebox extends Applet{
         MediaTrack = new MediaTracker(this);
 
         // Gets album art and scales it to 150x150 pixels
-        img = getImage(getCodeBase(), "0.jpg");
+        img = getImage(getCodeBase(), "default.jpg");
         MediaTrack.addImage(img,0);
         g2.drawImage(img, 10, 10, 150, 150, this);
 
