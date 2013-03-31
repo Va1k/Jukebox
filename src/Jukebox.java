@@ -4,12 +4,14 @@
  * Date  : 28/03/13
  * Time  : 9:28 AM
  */
-import javax.swing.*;
 import java.applet.Applet;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.*;
 import java.net.*;
+import javax.sound.sampled.*;
+import javax.swing.*;
 
 public class Jukebox extends Applet{
 //***************************************//
@@ -23,7 +25,7 @@ public class Jukebox extends Applet{
         setLayout(new BorderLayout(0,3));
 
         // Song list
-        List list = new List(5);
+        final List list = new List(5);
 
         /* *
         * Big complicated block of code does a bunch of stuff.
@@ -31,12 +33,12 @@ public class Jukebox extends Applet{
         * Firstly it gets a URL to the /data folder that's correct because it's worked out relative to the java file.
         * This means it'll work when uploaded to a web server/anywhere.
         *
-        * It then adds each .mp3 file to the list component in the window, but this is surrounded in a try/catch expression.
+        * It then adds each .wav file to the list component in the window, but this is surrounded in a try/catch expression.
         *
         * Simply meaning that if it fails (kind of likely, what if no songs are available, etc.) it'll know what to do still
         * */
 
-        URL url = this.getClass().getResource("/data");
+        final URL url = this.getClass().getResource("/data");
 
         File dir = null;
         try {
@@ -45,8 +47,8 @@ public class Jukebox extends Applet{
             e.printStackTrace();
         }
         for (File child : dir.listFiles()) {
-            if(child.getName().endsWith(".mp3")) {
-                list.addItem(child.getName());
+            if(child.getName().endsWith(".wav")) {
+                list.add(child.getName());
             } else {
                 // Do nothing?
             }
@@ -54,6 +56,46 @@ public class Jukebox extends Applet{
 
         // Add the list to the window.
         add(list, BorderLayout.SOUTH);
+
+        // Listen up!
+        list.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("lol");
+
+                URL file = this.getClass().getResource("/data/" + list.getSelectedItem());
+
+                AudioInputStream stream = null;
+                try {
+                    stream = AudioSystem.getAudioInputStream(file);
+                } catch (UnsupportedAudioFileException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                Clip music = null;
+
+
+
+                try {
+                    music = AudioSystem.getClip();
+                } catch (LineUnavailableException e1) {
+                    e1.printStackTrace();
+                }
+                try {
+                    music.open(stream);
+                } catch (LineUnavailableException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                if(music.isActive()) {
+                    music.flush();
+                }
+
+                music.start();
+
+            }
+        });
 
         //Buttons
         add(Box.createRigidArea(new Dimension(50,135)),BorderLayout.NORTH); // Invisible Box to shift things around
