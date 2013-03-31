@@ -38,15 +38,15 @@ public class Jukebox extends Applet{
         // Gets album art and scales it to 150x150 pixels
         img = getImage(getCodeBase(), "0.jpg");
         MediaTrack.addImage(img,0);
-        g.drawImage(img, 10, 10, 150, 150, this);
+        g2.drawImage(img, 10, 10, 150, 150, this);
 
         // Implement the song information
-        g.setFont(fntT);
-        g.drawString(title, 170, 50);
-        g.setFont(fntA);
-        g.drawString(artist,180,80);
-        g.setFont(fntL);
-        g.drawString(length,180,100);
+        g2.setFont(fntT);
+        g2.drawString(title, 170, 50);
+        g2.setFont(fntA);
+        g2.drawString(artist,180,80);
+        g2.setFont(fntL);
+        g2.drawString(length,180,100);
     }
 
 }
