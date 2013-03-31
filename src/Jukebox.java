@@ -25,11 +25,12 @@ public class Jukebox extends Applet{
     URL albumArt = this.getClass().getResource("/Data/AlbumArt/default.jpg");
     String title = "Select a song, just double-click!", artist="", length="";
     Button stop;
+    Panel panel;
 //***************************************//
 
     public void init() {
         // Sizes the applet on init to the preferred/intended dimensions
-        resize(700, 390);
+        resize(700, 400);
         setLayout(new BorderLayout(0,3));
 
         // Creates the list component that will house our songs.
@@ -65,16 +66,15 @@ public class Jukebox extends Applet{
         add(list, BorderLayout.SOUTH);
 
         // Buttons
-        Panel panel = new Panel();
+        panel = new Panel();
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER));
         add(panel,BorderLayout.EAST);
         Font btn = new Font("Sans-serif", Font.BOLD, 30);
         stop = new Button("■");
         stop.setFont(btn);
-        stop.setVisible(false);
+        panel.setVisible(true);
+        stop.setVisible(true);
         panel.add(stop);
-
-
-
         /*
          * Listen up!
          *  Provides a listener that responds to when items are *double-clicked* on
@@ -83,7 +83,6 @@ public class Jukebox extends Applet{
         list.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                stop.setVisible(true);
                 /****************************************
                  * Playing Audio
                  ****************************************/
@@ -170,15 +169,34 @@ public class Jukebox extends Applet{
                     e.printStackTrace();   // Print a stack trace.
                 }
                 /****************************************
-                 * Buttons
+                 * Repaint with new variables.
                  ****************************************/
-
-                stop.setVisible(true); // Makes the stop button visible!
-
                 repaint();
             }
         });
-        // Finally end the listener.
+        stop.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if(stream != null) {  // If the AudioStream *isn't* empty...
+                    try {
+                        stream.close();  // try to close the stream
+                    } catch (IOException e) {
+                        e.printStackTrace();   // but if it can't, print a stack trace.
+                    }
+                }
+
+                if(music != null) {  // If the clip *isn't empty...
+                    music.stop();    // Stop the music.
+                    music.flush();   // Flush the cache.
+                }
+
+                title = "Select a song, just double-click!";
+                artist = "";
+                length = "";
+                albumArt = this.getClass().getResource("/Data/AlbumArt/default.jpg");
+                repaint();
+            }
+        });
     }
 
 
