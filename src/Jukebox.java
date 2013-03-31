@@ -48,26 +48,28 @@ public class Jukebox extends Applet{
 
         url = this.getClass().getResource("/data");
 
-        File dir = null;
+        File dir = null;                 // Declares the 'File' "dir".
         try {
-            dir = new File(url.toURI());
+            dir = new File(url.toURI()); // Tries to turn the path to /data into an actual file object
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            e.printStackTrace();         // But if it fails, print a stack trace!
         }
-        for (File child : dir.listFiles()) {
+        for (File child : dir.listFiles()) {  // For loop that goes through each file in the folder 'dir'
             if(child.getName().endsWith(".wav")) {
-                list.add(child.getName());
+                list.add(child.getName()); // Adds files ending in .wav to the list component.
             } else {
-                // Do nothing?
+                // Do nothing
             }
         }
-        // Add the list to the window.
+        // Add the list to the applet.
         add(list, BorderLayout.SOUTH);
 
-        // Buttons
+        // Makes a new panel and sets it to 'East' in the original applet. The panel uses FlowLayout.
         panel = new Panel();
         panel.setLayout(new FlowLayout(FlowLayout.CENTER));
         add(panel,BorderLayout.EAST);
+
+        // Adds a 'stop' button to the panel.
         Font btn = new Font("Sans-serif", Font.BOLD, 30);
         stop = new Button("■");
         stop.setFont(btn);
@@ -85,7 +87,7 @@ public class Jukebox extends Applet{
                 /****************************************
                  * Playing Audio
                  ****************************************/
-                file = this.getClass().getResource("/data/" + list.getSelectedItem());  // Gets the File URL to the selected song.
+                file = this.getClass().getResource("/data/" + list.getSelectedItem());  // Gets the proper, relative URL to the selected file.
 
                 // What if something is already playing? :S
                 if(stream != null) {  // If the AudioStream *isn't* empty...
@@ -96,7 +98,7 @@ public class Jukebox extends Applet{
                     }
                 }
 
-                if(music != null) {  // If the clip *isn't empty...
+                if(music != null) {  // If the clip *isn't* empty...
                     music.stop();    // Stop the music.
                     music.flush();   // Flush the cache.
                 }
@@ -135,10 +137,9 @@ public class Jukebox extends Applet{
                 if(i >= 0) { // If there's an extension
                     filename = filename.substring(0,i); // Cuts off the file extension.
                 }
-                System.out.println(filename);
 
-                if(filename.contains(" - ")) { // If the file is named as "TrackName - Artist"
-                    String[] metadata = filename.split(" - "); // Split the song name into two parts and store them in an array.
+                if(filename.contains(" - ")) { // If the file has a hyphen separator, assume it separates the title from the artist. RTM!!
+                    String[] metadata = filename.split(" - "); // Split the song name into the two parts and store them in an array.
 
                     title = metadata[0];  // The title is the first part of the array (Starts from 0).
                     artist = metadata[1]; // The artist is the second part of the array.
@@ -148,8 +149,9 @@ public class Jukebox extends Applet{
                 }
 
                 // Track length
-                long lM = (long) (1000 * stream.getFrameLength() / stream.getFormat().getFrameRate());
+                long lM = (long) (1000 * stream.getFrameLength() / stream.getFormat().getFrameRate());  // Get the audio stream's frame length and divide that by its FrameRate, times 1000 is the length of the file in miliseconds.
 
+                // Converts miliseconds into a readable minutes & seconds format via the TimeUnit class.
                 length = String.format("%d min, %d sec",
                         TimeUnit.MILLISECONDS.toMinutes(lM),
                         TimeUnit.MILLISECONDS.toSeconds(lM) -
@@ -160,35 +162,46 @@ public class Jukebox extends Applet{
                 // Assume there's a file in the /Data/AlbumArt directory named "TrackName - Artist.jpg"
                 albumArt = this.getClass().getResource("/Data/AlbumArt/" + filename + ".jpg");
 
+                /* Comments are on the side -> */
                 try {
-                    albumArt.getContent(); // Try to get the .jpg album art
-                } catch (NullPointerException e) {   // If it's not there
+                    albumArt.getContent();                                                 // Try to get the .jpg album art
+                } catch (NullPointerException e) {                                         // If it's not there
                     albumArt = this.getClass().getResource("/Data/AlbumArt/default.jpg");  // Set the album art to the default.
-                } catch (IOException e) {  // But if there's another I/O error.
-                    e.printStackTrace();   // Print a stack trace.
+                } catch (IOException e) {                                                  // But if there's another I/O error.
+                    e.printStackTrace();                                                   // Print a stack trace.
                 }
                 /****************************************
                  * Repaint with new variables.
                  ****************************************/
                 repaint();
             }
-        });
+        }); // List listener end.
+
+        // Creates an event listener for the 'stop' button.
         stop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if(stream != null) {  // If the AudioStream *isn't* empty...
+
+                /*
+                * If the AudioStream isn't empty, try to close the stream, but if that's not possible; print a stack trace.
+                */
+                if(stream != null) {
                     try {
-                        stream.close();  // try to close the stream
+                        stream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();   // but if it can't, print a stack trace.
+                        e.printStackTrace();
                     }
                 }
 
-                if(music != null) {  // If the clip *isn't empty...
-                    music.stop();    // Stop the music.
-                    music.flush();   // Flush the cache.
+                /*
+                * If the clip isn't empty, stop the music and then flush the cache.
+                */
+                if(music != null) {
+                    music.stop();
+                    music.flush();
                 }
 
+                // Sets all the metadata back to default values.
                 title = "Select a song, just double-click!";
                 artist = "";
                 length = "";
@@ -206,20 +219,20 @@ public class Jukebox extends Applet{
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-        //Define some stuff!
+        //Define some fonts!
         Font fntT = new Font("Trebuchet MS", Font.PLAIN, 22);
         Font fntA = new Font("Trebuchet MS", Font.PLAIN, 18);
         Font fntL = new Font("Trebuchet MS", Font.PLAIN, 16);
 
-        //Let's have a mediatracker.
+        //Let's have a MediaTracker!
         MediaTrack = new MediaTracker(this);
 
-        // Gets album art and scales it to 150x150 pixels
+        // Gets album art and scales it to 250x250 pixels
         albumCover = getImage(albumArt);
         MediaTrack.addImage(albumCover,0);
         g2.drawImage(albumCover, 10, 10, 250, 250, this);
 
-        // Implement the song information
+        // Draw the song information
         g2.setFont(fntT);
         g2.drawString(title, 270, 50);
         g2.setFont(fntA);
