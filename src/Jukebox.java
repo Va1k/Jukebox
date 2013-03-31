@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.*;
 import javax.sound.sampled.*;
-import javax.swing.*;
 import java.util.concurrent.*;
 
 public class Jukebox extends Applet{
