@@ -1,1 +1,7 @@
-This file was created by IntelliJ IDEA 12.0.4 for binding GitHub repository
+A basic jukebox program coded in Java.
+
+It's in AWT because it has to be, I'd much rather use Swing because I'm not insane.
+
+This code is free, take it and do whatever, just don't ask for help. (Can't say anything about the example files it uses though!)
+
+http://valk.id.au/
