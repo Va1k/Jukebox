@@ -7,6 +7,9 @@
 import javax.swing.*;
 import java.applet.Applet;
 import java.awt.*;
+import java.io.File;
+import java.io.*;
+import java.net.*;
 
 public class Jukebox extends Applet{
 //***************************************//
@@ -21,14 +24,36 @@ public class Jukebox extends Applet{
 
         // Song list
         List list = new List(5);
-        list.add("One");
-        list.add("One");
-        list.add("One");
-        list.add("One");
-        list.add("One");
-        list.add("One");
-        list.add("One");
-        add(list,BorderLayout.SOUTH);
+
+        /* *
+        * Big complicated block of code does a bunch of stuff.
+        *
+        * Firstly it gets a URL to the /data folder that's correct because it's worked out relative to the java file.
+        * This means it'll work when uploaded to a web server/anywhere.
+        *
+        * It then adds each .mp3 file to the list component in the window, but this is surrounded in a try/catch expression.
+        *
+        * Simply meaning that if it fails (kind of likely, what if no songs are available, etc.) it'll know what to do still
+        * */
+
+        URL url = this.getClass().getResource("/data");
+
+        File dir = null;
+        try {
+            dir = new File(url.toURI());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        for (File child : dir.listFiles()) {
+            if(child.getName().endsWith(".mp3")) {
+                list.addItem(child.getName());
+            } else {
+                // Do nothing?
+            }
+        }
+
+        // Add the list to the window.
+        add(list, BorderLayout.SOUTH);
 
         //Buttons
         add(Box.createRigidArea(new Dimension(50,135)),BorderLayout.NORTH); // Invisible Box to shift things around
