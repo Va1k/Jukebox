@@ -4,33 +4,36 @@
  * Time  : 9:28 AM
  */
 import java.applet.Applet;
-import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
-import javax.swing.*;
 import javax.sound.sampled.*;
+import javax.swing.*;
+import java.util.concurrent.*;
 
 public class Jukebox extends Applet{
 //***************************************//
-    Image img;
+    Image albumCover;
     MediaTracker MediaTrack;
     AudioInputStream stream;
     Clip music;
     List list;
     URL url;
     URL file;
+    URL albumArt = this.getClass().getResource("/Data/AlbumArt/default.jpg");
+    String title = "Select a song, just double-click!", artist="", length="";
+    Button stop;
 //***************************************//
 
     public void init() {
         // Sizes the applet on init to the preferred/intended dimensions
-        resize(600, 260);
+        resize(600, 340);
         setLayout(new BorderLayout(0,3));
 
         // Creates the list component that will house our songs.
-        list = new List(5);
+        list = new List(10);
 
         /* *
         * Complicated block of code does a bunch of stuff.
@@ -58,9 +61,20 @@ public class Jukebox extends Applet{
                 // Do nothing?
             }
         }
-
         // Add the list to the window.
         add(list, BorderLayout.SOUTH);
+
+        // Buttons
+        Panel panel = new Panel();
+        add(panel,BorderLayout.EAST);
+        Font btn = new Font("Sans-serif", Font.BOLD, 30);
+        stop = new Button("■");
+        stop.setFont(btn);
+        stop.setVisible(false);
+        panel.add(stop);
+
+
+
 
         /*
          * Listen up!
@@ -70,6 +84,10 @@ public class Jukebox extends Applet{
         list.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                stop.setVisible(true);
+                /****************************************
+                 * Playing Audio
+                 ****************************************/
                 file = this.getClass().getResource("/data/" + list.getSelectedItem());  // Gets the File URL to the selected song.
 
                 // What if something is already playing? :S
@@ -89,7 +107,7 @@ public class Jukebox extends Applet{
                 stream = null; // Set the stream to null.
                 try {
                     stream = AudioSystem.getAudioInputStream(file);  // Try to put the file into the AudioStream
-                } catch (UnsupportedAudioFileException e) {          // If the file is unsuported..
+                } catch (UnsupportedAudioFileException e) {          // If the file is unsupported..
                     e.printStackTrace();                                // Print a Stack Trace
                 } catch (IOException e) {                            // If there's an I/O exception..
                     e.printStackTrace();                                // Print a Stack Trace
@@ -108,17 +126,63 @@ public class Jukebox extends Applet{
                     e.printStackTrace();                    // Print a Stack Trace.
                 }
                 music.start();  // Finally, play the music.
+
+                /****************************************
+                 * Metadata
+                 ****************************************/
+
+                // Track name + Artist
+                String filename = list.getSelectedItem();
+
+                int i = filename.lastIndexOf('.');
+                if(i >= 0) { // If there's an extension
+                    filename = filename.substring(0,i); // Cuts off the file extension.
+                }
+                System.out.println(filename);
+
+                if(filename.contains(" - ")) { // If the file is named as "TrackName - Artist"
+                    String[] metadata = filename.split(" - "); // Split the song name into two parts and store them in an array.
+
+                    title = metadata[0];  // The title is the first part of the array (Starts from 0).
+                    artist = metadata[1]; // The artist is the second part of the array.
+                } else {
+                    title = filename; // If it's not named correctly, just make the title the filename.
+                    artist = "";
+                }
+
+                // Track length
+                long lM = (long) (1000 * stream.getFrameLength() / stream.getFormat().getFrameRate());
+
+                length = String.format("%d min, %d sec",
+                        TimeUnit.MILLISECONDS.toMinutes(lM),
+                        TimeUnit.MILLISECONDS.toSeconds(lM) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(lM))
+                );
+
+                // Album Art
+                // Assume there's a file in the /Data/AlbumArt directory named "TrackName - Artist.jpg"
+                albumArt = this.getClass().getResource("/Data/AlbumArt/" + filename + ".jpg");
+
+                try {
+                    albumArt.getContent(); // Try to get the .jpg album art
+                } catch (NullPointerException e) {   // If it's not there
+                    albumArt = this.getClass().getResource("/Data/AlbumArt/default.jpg");  // Set the album art to the default.
+                } catch (IOException e) {  // But if there's another I/O error.
+                    e.printStackTrace();   // Print a stack trace.
+                }
+                /****************************************
+                 * Buttons
+                 ****************************************/
+
+                stop.setVisible(true); // Makes the stop button visible!
+
+                repaint();
             }
         });
         // Finally end the listener.
-        // Buttons
-        add(Box.createRigidArea(new Dimension(50, 135)), BorderLayout.NORTH); // Invisible Box to shift things around
-
-        Font btn = new Font("Sans-serif", Font.BOLD, 30);
-        Button stop = new Button("■");
-        stop.setFont(btn);
-        add(stop,BorderLayout.EAST);
     }
+
+
 
     public void paint(Graphics g) {
         // No more fuzzy text! Anti-aliasing on!
@@ -127,9 +191,6 @@ public class Jukebox extends Applet{
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
         //Define some stuff!
-        String title = "Song name";
-        String artist = "Song artist";
-        String length = "0:00";
         Font fntT = new Font("Trebuchet MS", Font.PLAIN, 22);
         Font fntA = new Font("Trebuchet MS", Font.PLAIN, 18);
         Font fntL = new Font("Trebuchet MS", Font.PLAIN, 16);
@@ -138,9 +199,9 @@ public class Jukebox extends Applet{
         MediaTrack = new MediaTracker(this);
 
         // Gets album art and scales it to 150x150 pixels
-        img = getImage(getCodeBase(), "default.jpg");
-        MediaTrack.addImage(img,0);
-        g2.drawImage(img, 10, 10, 150, 150, this);
+        albumCover = getImage(albumArt);
+        MediaTrack.addImage(albumCover,0);
+        g2.drawImage(albumCover, 10, 10, 150, 150, this);
 
         // Implement the song information
         g2.setFont(fntT);
