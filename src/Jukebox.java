@@ -29,11 +29,11 @@ public class Jukebox extends Applet{
 
     public void init() {
         // Sizes the applet on init to the preferred/intended dimensions
-        resize(600, 340);
+        resize(700, 390);
         setLayout(new BorderLayout(0,3));
 
         // Creates the list component that will house our songs.
-        list = new List(10);
+        list = new List(7);
 
         /* *
         * Complicated block of code does a bunch of stuff.
@@ -72,7 +72,6 @@ public class Jukebox extends Applet{
         stop.setFont(btn);
         stop.setVisible(false);
         panel.add(stop);
-
 
 
 
@@ -201,15 +200,15 @@ public class Jukebox extends Applet{
         // Gets album art and scales it to 150x150 pixels
         albumCover = getImage(albumArt);
         MediaTrack.addImage(albumCover,0);
-        g2.drawImage(albumCover, 10, 10, 150, 150, this);
+        g2.drawImage(albumCover, 10, 10, 250, 250, this);
 
         // Implement the song information
         g2.setFont(fntT);
-        g2.drawString(title, 170, 50);
+        g2.drawString(title, 270, 50);
         g2.setFont(fntA);
-        g2.drawString(artist, 180, 80);
+        g2.drawString(artist, 280, 80);
         g2.setFont(fntL);
-        g2.drawString(length,180,100);
+        g2.drawString(length,280,100);
     }
 
 }
