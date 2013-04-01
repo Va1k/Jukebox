@@ -32,12 +32,19 @@ public class Jukebox extends Applet{
         resize(700, 400);
         setLayout(new BorderLayout(0,3));
 
+        // If it gets its own .class from a path containing http://, end most of the program and display an error message.
+        // This is to compensate for the fact that if the applet is run without this code on a http server the applet will just crash without explanation.
+        // It also provides a URL to download a copy of the files in order to rectify the issue.
         if (this.getClass().getResource("Jukebox.class").toString().contains("http://")) {
             setLayout(new FlowLayout());
-            Label label = (new Label("This Java applet must be run from a folder on your hard drive. Download a copy at...\n\nhttp://vlk.me/3t\n\n\n\n"));
-            add(label);
-            Label label3 = (new Label("For those wondering, this is due to the fact that this applet \nscans a relative folder for files rather than having them hardcoded.\n\nSorry!"));
-            add(label3);
+            TextArea textArea = (new TextArea(
+                    "This Java applet must be run from a folder on your hard drive. Download a copy at...\n" +
+                    "http://vlk.me/35\n\n" +
+                    "For those wondering, this is due to the fact that this applet scans a \nrelative folder for files rather than having them hardcoded. Sorry!"
+            ));
+            textArea.setEditable(false);
+            textArea.setColumns(20);
+            add(textArea);
             setBackground(Color.white);
             albumArt = null;
             title = "";
