@@ -94,7 +94,6 @@ public class Jukebox extends Applet{
         stop = new Button("■");
         stop.setFont(btn);
         panel.setVisible(true);
-        stop.setVisible(true);
         panel.add(stop);
         /*
          * Listen up!
@@ -259,6 +258,22 @@ public class Jukebox extends Applet{
         g2.drawString(artist, 280, 80);
         g2.setFont(fntL);
         g2.drawString(length,280,100);
+    }
+
+    public void stop() {
+        // To prevent that weird thing that happens when you close the browser but the music keeps playing...
+        music.stop();
+    }
+
+    public void destroy() {
+        // To clean up anything left behind...
+        music.stop();
+        music.flush();
+        try {
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
