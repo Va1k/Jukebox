@@ -32,6 +32,19 @@ public class Jukebox extends Applet{
         resize(700, 400);
         setLayout(new BorderLayout(0,3));
 
+        if (this.getClass().getResource("Jukebox.class").toString().contains("http://")) {
+            setLayout(new FlowLayout());
+            Label label = (new Label("This Java applet must be run from a folder on your hard drive. Download a copy at...\n\nhttp://vlk.me/3t\n\n\n\n"));
+            add(label);
+            Label label3 = (new Label("For those wondering, this is due to the fact that this applet \nscans a relative folder for files rather than having them hardcoded.\n\nSorry!"));
+            add(label3);
+            setBackground(Color.white);
+            albumArt = null;
+            title = "";
+            artist="";
+            length="";
+            return;
+        }
         // Creates the list component that will house our songs.
         list = new List(7);
 
@@ -149,9 +162,9 @@ public class Jukebox extends Applet{
                 }
 
                 // Track length
-                long lM = (long) (1000 * stream.getFrameLength() / stream.getFormat().getFrameRate());  // Get the audio stream's frame length and divide that by its FrameRate, times 1000 is the length of the file in miliseconds.
+                long lM = (long) (1000 * stream.getFrameLength() / stream.getFormat().getFrameRate());  // Get the audio stream's frame length and divide that by its FrameRate, times 1000 is the length of the file in milliseconds.
 
-                // Converts miliseconds into a readable minutes & seconds format via the TimeUnit class.
+                // Converts milliseconds into a readable minutes & seconds format via the TimeUnit class.
                 length = String.format("%d min, %d sec",
                         TimeUnit.MILLISECONDS.toMinutes(lM),
                         TimeUnit.MILLISECONDS.toSeconds(lM) -
