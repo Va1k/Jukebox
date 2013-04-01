@@ -90,8 +90,8 @@ public class Jukebox extends Applet{
         add(panel,BorderLayout.EAST);
 
         // Adds a 'stop' button to the panel.
-        Font btn = new Font("Sans-serif", Font.BOLD, 30);
-        stop = new Button("■");
+        Font btn = new Font("Fixed-width", Font.PLAIN, 12);
+        stop = new Button("Stop");
         stop.setFont(btn);
         panel.setVisible(true);
         panel.add(stop);
