@@ -281,7 +281,7 @@ public class Jukebox extends Applet{
                 if(loop.getState()) {
                     music.setLoopPoints(0, -1);
                     music.loop(Clip.LOOP_CONTINUOUSLY);
-                } else {
+                } else if(music.isActive()){  // looping stops automatically if the music is stopped or paused, so only manually turn off looping if it's changed while a song is playing.
                     music.loop(0);
                 }
             }
