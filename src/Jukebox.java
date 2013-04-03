@@ -14,19 +14,17 @@ import java.util.concurrent.*;
 
 public class Jukebox extends Applet{
 //***************************************//
-    Image albumCover;
-    MediaTracker MediaTrack;
-    AudioInputStream stream;
-    Clip music;
-    List list;
-    URL url;
-    URL file;
-    URL albumArt = this.getClass().getResource("/Data/AlbumArt/default.jpg");
-    String title = "Select a song, just double-click!", artist="", length="";
-    Button stop;
-    Panel panel;
-    Button pause;
-    Checkbox loop;
+    private AudioInputStream stream;
+    private Clip music;
+    private List list;
+    private URL file;
+    private URL albumArt = this.getClass().getResource("/Data/AlbumArt/default.jpg");
+    private String title = "Select a song, just double-click!";
+    private String artist = "";
+    private String length = "";
+    private Button stop;
+    private Button pause;
+    private Checkbox loop;
 //***************************************//
 
     public void init() {
@@ -68,7 +66,7 @@ public class Jukebox extends Applet{
         * Simply meaning that if it fails (kind of likely, what if no songs are available, etc.) it'll know what to do still
         * */
 
-        url = this.getClass().getResource("/data");
+        URL url = this.getClass().getResource("/data");
 
         File dir = null;                 // Declares the 'File' "dir".
         try {
@@ -76,6 +74,7 @@ public class Jukebox extends Applet{
         } catch (URISyntaxException e) {
             e.printStackTrace();         // But if it fails, print a stack trace!
         }
+        //noinspection ConstantConditions
         for (File child : dir.listFiles()) {  // For loop that goes through each file in the folder 'dir'
             if(child.getName().endsWith(".wav")) {
                 list.add(child.getName()); // Adds files ending in .wav to the list component.
@@ -87,8 +86,8 @@ public class Jukebox extends Applet{
         add(list, BorderLayout.SOUTH);
 
         // Make a new panel and add it to the applet.
-        panel = new Panel();
-        panel.setLayout(new GridLayout(9,1,0,0)); // Make the panel use a grid layout to have a multiple rows of buttons, etc in a single column
+        Panel panel = new Panel();
+        panel.setLayout(new GridLayout(9, 1, 0, 0)); // Make the panel use a grid layout to have a multiple rows of buttons, etc in a single column
         add(panel,BorderLayout.EAST);
 
         // Adds a Play/pause button to the panel.
@@ -302,11 +301,11 @@ public class Jukebox extends Applet{
         Font fntL = new Font("Trebuchet MS", Font.PLAIN, 16);
 
         //Let's have a MediaTracker!
-        MediaTrack = new MediaTracker(this);
+        MediaTracker mediaTrack = new MediaTracker(this);
 
         // Gets album art and scales it to 250x250 pixels
-        albumCover = getImage(albumArt);
-        MediaTrack.addImage(albumCover,0);
+        Image albumCover = getImage(albumArt);
+        mediaTrack.addImage(albumCover, 0);
         g2.drawImage(albumCover, 10, 10, 250, 250, this);
 
         // Draw the song information

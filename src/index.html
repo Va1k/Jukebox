@@ -11,23 +11,17 @@
         }
 
         #body {
-            margin-left:auto;
-            margin-right:auto;
-            margin-top:20px;
             width:705px;
             background-color:#FFF;
-            padding-left:20px;
-            padding-right:20px;
-            padding-top:10px;
-            padding-bottom:10px;
-            box-shadow:0px 5px 10px rgb(136, 136, 136);
+            padding: 10px 20px;
+            box-shadow:0 5px 10px rgb(136, 136, 136);
             font-size:12px;
-            margin-bottom:20px;
+            margin: 20px auto;
         }
 
         h2 {
             margin-bottom:-20px;
-            margin-top:0px;
+            margin-top:0;
             font-size:20px;
         }
 
@@ -53,6 +47,7 @@
     <h5>A Java applet that plays music..</h5>
 
     <div id="applet" align="center">
+        <!--suppress HtmlDeprecatedTag, HtmlDeprecatedTag -->
         <applet code=Jukebox.class width="700" height="400">
             <p>Your browser does not support the <code>applet</code> tag.</p>
         </applet>
