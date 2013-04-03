@@ -25,6 +25,8 @@ public class Jukebox extends Applet{
     String title = "Select a song, just double-click!", artist="", length="";
     Button stop;
     Panel panel;
+    Button pause;
+    Checkbox loop;
 //***************************************//
 
     public void init() {
@@ -84,17 +86,25 @@ public class Jukebox extends Applet{
         // Add the list to the applet.
         add(list, BorderLayout.SOUTH);
 
-        // Makes a new panel and sets it to 'East' in the original applet. The panel uses FlowLayout.
+        // Makes a new panel and sets it to 'East' in the original applet.
         panel = new Panel();
-        panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        panel.setLayout(new GridLayout(9,1,0,0)); // Use a grid layout to have a multiple rows of buttons in a single column
         add(panel,BorderLayout.EAST);
 
+        // Adds a Play/pause button to the panel.
+        Font btn = new Font("Fixed-width", Font.PLAIN, 13);
+        pause = new Button("Pause");
+        pause.setFont(btn);
+        panel.add(pause);
+        pause.setVisible(false);
+
         // Adds a 'stop' button to the panel.
-        Font btn = new Font("Fixed-width", Font.PLAIN, 12);
         stop = new Button("Stop");
         stop.setFont(btn);
         panel.setVisible(true);
         panel.add(stop);
+        stop.setVisible(false);
+
         /*
          * Listen up!
          *  Provides a listener that responds to when items are *double-clicked* on
@@ -190,8 +200,10 @@ public class Jukebox extends Applet{
                     e.printStackTrace();                                                   // Print a stack trace.
                 }
                 /****************************************
-                 * Repaint with new variables.
+                 * Repaint with new variables & buttons
                  ****************************************/
+                stop.setVisible(true);
+                pause.setVisible(true);
                 repaint();
             }
         }); // List listener end.
@@ -225,7 +237,25 @@ public class Jukebox extends Applet{
                 artist = "";
                 length = "";
                 albumArt = this.getClass().getResource("/Data/AlbumArt/default.jpg");
+
+                // Makes the buttons invisible
+                pause.setVisible(false);
+                stop.setVisible(false);
                 repaint();
+            }
+        });
+
+        // Pause button listener
+        pause.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (music.isActive()) {
+                    music.stop();
+                    pause.setLabel("Play");
+                } else {
+                    music.start();
+                    pause.setLabel("Pause");
+                }
             }
         });
     }
