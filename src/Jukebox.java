@@ -54,7 +54,7 @@ public class Jukebox extends Applet{
             length="";
             return;
         }
-        // Creates the list component that will house our songs.
+        // Creates the list component that will list all the songs.
         list = new List(7);
 
         /* *
@@ -83,32 +83,41 @@ public class Jukebox extends Applet{
                 // Do nothing
             }
         }
-        // Add the list to the applet.
+        // Add the file list to the applet.
         add(list, BorderLayout.SOUTH);
 
-        // Makes a new panel and sets it to 'East' in the original applet.
+        // Make a new panel and add it to the applet.
         panel = new Panel();
-        panel.setLayout(new GridLayout(9,1,0,0)); // Use a grid layout to have a multiple rows of buttons in a single column
+        panel.setLayout(new GridLayout(9,1,0,0)); // Make the panel use a grid layout to have a multiple rows of buttons, etc in a single column
         add(panel,BorderLayout.EAST);
 
         // Adds a Play/pause button to the panel.
-        Font btn = new Font("Fixed-width", Font.PLAIN, 13);
+        Font btn = new Font("Fixed-width", Font.PLAIN, 13);  // Snazzy button font.
         pause = new Button("Pause");
         pause.setFont(btn);
         panel.add(pause);
-        pause.setVisible(false);
+        pause.setVisible(false);    // Start off invisible, there's no need for it until a song is played.
 
         // Adds a 'stop' button to the panel.
         stop = new Button("Stop");
         stop.setFont(btn);
-        panel.setVisible(true);
         panel.add(stop);
-        stop.setVisible(false);
+        stop.setVisible(false);  // Start off invisible, there's no need for it until a song is played.
+
+        // Adds a loop checkbox to the panel.
+        loop = new Checkbox("Loop");
+        panel.add(loop);
+        loop.setVisible(false);    // Start off invisible, there's no need for it until a song is played.
 
         /*
          * Listen up!
          *  Provides a listener that responds to when items are *double-clicked* on
          *  in the list component.
+         *
+         *  I chose to use inner classes because listeners don't really need a big fancy class of their own.
+         *  Let alone a name.
+         *
+         *  It's also kind of impossible to have two methods named the same thing within the same class, which is rather limiting.
          */
         list.addActionListener(new ActionListener() {
             @Override
@@ -123,7 +132,7 @@ public class Jukebox extends Applet{
                     try {
                         stream.close();  // try to close the stream
                     } catch (IOException e) {
-                        e.printStackTrace();   // but if it can't, print a stack trace.
+                        e.printStackTrace();   // but if there's an I/O exception, print a stack trace.
                     }
                 }
 
@@ -132,7 +141,6 @@ public class Jukebox extends Applet{
                     music.flush();   // Flush the cache.
                 }
 
-                stream = null; // Set the stream to null.
                 try {
                     stream = AudioSystem.getAudioInputStream(file);  // Try to put the file into the AudioStream
                 } catch (UnsupportedAudioFileException e) {          // If the file is unsupported..
@@ -140,15 +148,14 @@ public class Jukebox extends Applet{
                 } catch (IOException e) {                            // If there's an I/O exception..
                     e.printStackTrace();                                // Print a Stack Trace
                 }
-                music = null; // Set the clip to null.
                 try {
-                    music = AudioSystem.getClip();      // Creates a clip that can be used for playing back an audio file or an audio stream.
-                } catch (LineUnavailableException e) {  // But if there's no line to put it on...
+                    music = AudioSystem.getClip();      // Creates a clip that can be used for playing back an audio file (an audio stream).
+                } catch (LineUnavailableException e) {  // But if there's no (audio) line to put it on...
                     e.printStackTrace();                    // Print a Stack Trace
                 }
                 try {
                     music.open(stream);                 // Try to use the clip to open the previously created stream.
-                } catch (LineUnavailableException e) {  // But if there's no line to put it on...
+                } catch (LineUnavailableException e) {  // But if there's no (audio) line to put it on...
                     e.printStackTrace();                    // Print a Stack Trace.
                 } catch (IOException e) {               // Or if there's an I/O Error.
                     e.printStackTrace();                    // Print a Stack Trace.
@@ -160,15 +167,15 @@ public class Jukebox extends Applet{
                  ****************************************/
 
                 // Track name + Artist
-                String filename = list.getSelectedItem();
+                String filename = list.getSelectedItem();   // Get the selected file from the list
 
-                int i = filename.lastIndexOf('.');
-                if(i >= 0) { // If there's an extension
-                    filename = filename.substring(0,i); // Cuts off the file extension.
+                int i = filename.lastIndexOf('.');   // Gets the index where the filename starts.
+                if(i > 0) { // If there's an extension; if it has an index.
+                    filename = filename.substring(0,i); // Cuts off the file extension with substring!
                 }
 
-                if(filename.contains(" - ")) { // If the file has a hyphen separator, assume it separates the title from the artist. RTM!!
-                    String[] metadata = filename.split(" - "); // Split the song name into the two parts and store them in an array.
+                if(filename.contains(" - ")) { // If the file has a hyphen separator, assume it separates the title from the artist. Read the manual!
+                    String[] metadata = filename.split(" - "); // Split the song name into the two parts at the hyphen and store them in an array called metadata.
 
                     title = metadata[0];  // The title is the first part of the array (Starts from 0).
                     artist = metadata[1]; // The artist is the second part of the array.
@@ -180,7 +187,7 @@ public class Jukebox extends Applet{
                 // Track length
                 long lM = (long) (1000 * stream.getFrameLength() / stream.getFormat().getFrameRate());  // Get the audio stream's frame length and divide that by its FrameRate, times 1000 is the length of the file in milliseconds.
 
-                // Converts milliseconds into a readable minutes & seconds format via the TimeUnit class.
+                // Converts milliseconds into a readable minutes & seconds format via the extremely useful TimeUnit class.
                 length = String.format("%d min, %d sec",
                         TimeUnit.MILLISECONDS.toMinutes(lM),
                         TimeUnit.MILLISECONDS.toSeconds(lM) -
@@ -200,10 +207,14 @@ public class Jukebox extends Applet{
                     e.printStackTrace();                                                   // Print a stack trace.
                 }
                 /****************************************
-                 * Repaint with new variables & buttons
+                 * Repaint with new variables & buttons +
                  ****************************************/
                 stop.setVisible(true);
                 pause.setVisible(true);
+                loop.setVisible(true);
+
+                loop.setState(false); // Looping must be turned on again when changing songs.
+
                 repaint();
             }
         }); // List listener end.
@@ -241,6 +252,9 @@ public class Jukebox extends Applet{
                 // Makes the buttons invisible
                 pause.setVisible(false);
                 stop.setVisible(false);
+                loop.setVisible(false);
+
+                loop.setState(false); // Looping must be turned on again after stopping.
                 repaint();
             }
         });
@@ -252,9 +266,23 @@ public class Jukebox extends Applet{
                 if (music.isActive()) {
                     music.stop();
                     pause.setLabel("Play");
+                    loop.setState(false); // Looping must be turned on again after pausing.
                 } else {
                     music.start();
                     pause.setLabel("Pause");
+                }
+            }
+        });
+
+        // Loop checkbox listener
+        loop.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent itemEvent) {
+                if(loop.getState()) {
+                    music.setLoopPoints(0, -1);
+                    music.loop(Clip.LOOP_CONTINUOUSLY);
+                } else {
+                    music.loop(0);
                 }
             }
         });
@@ -292,17 +320,16 @@ public class Jukebox extends Applet{
 
     public void stop() {
         // To prevent that weird thing that happens when you close the browser but the music keeps playing...
+        if (music.isActive()) {  // Only try to stop the music if there's actually any music playing.
         music.stop();
+        }
     }
 
     public void destroy() {
-        // To clean up anything left behind...
+        // To clean up anything left behind..
+        if (music.isActive()) {  // Only try to stop the music and flush the cache if there's actually any music playing.
         music.stop();
         music.flush();
-        try {
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
